@@ -1,0 +1,541 @@
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="vi under Linux">
+   <title>WGCNA package: Frequently Asked Questions</title> 
+   <link rel="stylesheet" type="text/css" href="mystyle.css">
+</head>
+<body>
+
+<center>
+<h1>
+
+WGCNA package FAQ </h1>
+
+<h2> 
+	Peter Langfelder and Steve Horvath
+</h2>
+
+<br>
+<br>
+
+Dept. of Human Genetics, UC Los Ageles (PL, SH),
+Dept. of Biostatistics, UC Los Ageles (SH)
+<br>
+<br>
+Peter (dot) Langfelder (at) gmail (dot) com,
+SHorvath (at) mednet (dot) ucla (dot) edu 
+<br><br>
+
+</center>
+
+This page provides a list of Frequently Asked Questions and our frequently given answers. Please read
+these before emailing us about a problem. This FAQ was last updated on June 10, 2020.
+
+<h3>Data analysis questions</h3>
+<ol>
+
+<li><b>How many samples do I need?</b><p>
+
+We do not recommend attempting WGCNA on a data set consisting of fewer than 15 samples. In a typical
+high-throughput setting, correlations on fewer than 15 samples will simply be too noisy for the network to
+be biologically meaningful. If at all possible, one should have at least 20 samples; as with any analysis
+methods, more samples usually lead to more robust and refined results. 
+
+<br><br>
+
+<li><b>Should I filter probesets or genes?</b><p>
+
+Probesets or genes may be filtered by mean expression or variance (or their robust analogs such as median
+and median absolute deviation, MAD) since low-expressed or non-varying genes
+usually represent noise. Whether it is better to filter by mean expression or variance is a matter of
+debate; both have advantages and disadvantages, but more importantly, they tend to filter out similar sets
+of genes since mean and variance are usually related. 
+
+<p><b>We <u>do not</u> recommend filtering genes by differential expression.</b> WGCNA is designed to be an
+unsupervised analysis method that clusters genes based on their expression profiles. Filtering genes by
+differential expression will lead to a set of correlated genes that will essentially form a single (or a
+few highly correlated) modules. It also completely invalidates the scale-free topology assumption, so
+choosing soft thresholding power by scale-free topology fit will fail.
+
+<br><br>
+<li><b>What argument (option) settings are recommended?</b><p>
+
+In general, we attempt to select suitable defaults that work well in multiple applications. However, in
+certain cases we keep 'simple' or historical default settings for backward compatibility and reproducibility,
+while for new  calculations we recommend settings that differ from the defaults. Some of the settings are
+listed below.
+
+<ul>
+<li><b>Signed networks.</b> The choice of signed vs. unsigned networks is complex, but in general we prefer
+signed (or "signed hybrid") networks to unsigned networks. To construct signed networks, use argument
+<code>type = "signed"</code> or <code>type = "signed hybrid"</code> in functions such as
+<code>accuracyMeasures, adjacency, chooseOneHubInEachModule, chooseTopHubInEachModule,
+nearestNeighborConnectivity, nearestNeighborConnectivityMS, orderBranchesUsingHubGenes,
+softConnectivity</code> and possibly others (please see the help file for each function if in doubt). Some
+functions use the argument <code><b>networkType</b></code> to select network type; notable examples are
+<code> blockwiseModules,
+blockwiseConsensusModules, blockwiseIndividualTOMs, 
+consensusTOM, intramodularConnectivity,
+modulePreservation, pickSoftThreshold,
+TOMsimilarityFromExpr, vectorTOM</code> but there are others as well. Again, please read the help file if in
+doubt.
+
+<li><b>Robust correlation.</b> The default correlation method in all functions in WGCNA is standard Pearson
+correlation. In general, unless there is good reason to believe that there are no outlier measurements, we
+recommend (and use ourselves) the biweight mid-correlation as a robust alternative. This is implemented in
+WGCNA function <code>bicor</code>. Many WGCNA functions take the argument <code>corFnc</code> that allows one
+to specify an alternative correlation function to the standard <code>cor</code> and <code>bicor</code> is one
+option. Additional arguments to the correlation function can be specified using the argument
+<code>corOptions</code> (depending on function, this argument may require one of two alternate forms, please
+see the help for each function for details). In certain functions, notably the of the <code>blockwise</code>
+family, correlation function cannot be specified directly as a function; rather, one must use the argument
+<code>corType</code> to specify either Pearson or biweight mid-correlation.
+
+<p><b>Important cautionary notes regarding the use of bicor.</b> The biweight mid-correlation works very well
+in a variety of settings but in some situations it will produce unwanted results.
+<ul>
+<li><b>Restricting the number of excluded outliers: argument <code>maxPOutliers.</code></b> 
+The default version of the biweight mid-correlation, 
+described in Langfelder
+and Horvath (2011) (<a href="http://www.jstatsoft.org/article/view/v046i11" target=blank_>link to
+article</a>), can produce unwanted results when the data have a bi-modal distribution
+(e.g., when a gene expression depends heavily on a binary variable such as disease status or genotype) or when
+one of the variables entering the correlation is itself binary (or ordinal). For this reason, we strongly
+recommend using the argument <code>maxPOutliers = 0.05</code> or <code>0.10</code> whenever the biweight
+midcorrelation is used. This argument essentially forces <code>bicor</code> to never regard more than the
+specified proportion of samples as outliers.
+
+<li><b>Dealing with binary data.</b> When relating high-throughput data <code>x</code> 
+to binary variable <code>y</code> such as sample
+traits, one can use argument <code>robustY = FALSE</code> to turn off the robust treatment
+for the y argment of <code>bicor</code>. This results in a hybrid robust-Pearson correlation as described
+in Langfelder and Horvath (2011). The hybrid correlation can also be used when one of the inputs is numeric
+but known to not have any outliers.
+
+</ul>
+</ul>
+
+ <br><br>
+<li><b>Can WGCNA be used to analyze RNA-Seq data?</b><p>
+
+<p>Yes. As far as WGCNA is concerned, working with (properly normalized) RNA-seq data isn't really any
+different from working with (properly normalized) microarray data. 
+
+<p>We suggest removing features whose counts are consistently low
+(for example, removing all features that have a count of less than say 10 in
+more than 90% of the samples) because such low-expressed features tend
+to reflect noise and correlations based on counts that are mostly zero
+aren't really meaningful. The actual thresholds should be based
+on experimental design, sequencing depth and sample counts.
+
+<p>We then recommend a variance-stabilizing transformation. For example, package
+DESeq2 implements the function <code>varianceStabilizingTransformation</code> which
+we have found useful, but one could also start with normalized counts
+(or RPKM/FPKM data) and log-transform them using <code>log2(x+1)</code>. 
+For highly expressed features, the differences between full variance stabilization and a simple log
+transformation are small.
+
+<p>Whether one uses RPKM, FPKM, or simply normalized counts doesn't make a
+whole lot of difference for WGCNA analysis as long as all samples were
+processed <b>the same way</b>. These normalization methods make a big
+difference if one wants to compare expression of gene A to expression
+of gene B; but WGCNA calculates correlations for which gene-wise scaling
+factors make no difference.  (Sample-wise scaling factors of course
+do, so samples do need to be normalized.)
+
+<p>If data come from different batches, we recommend to check
+for batch effects and, if needed, adjust for them. We use ComBat for
+batch effect removal but other methods should also work.
+
+<p>Finally, we usually check quantile scatterplots to make sure there are
+no systematic shifts between samples; if sample quantiles show
+correlations (which they usually do), quantile normalization can be used to remove this effect.
+
+<br><br>
+<li><b>My data are heterogeneous. Can I still use WGCNA?</b><p>
+
+<p>Data heterogeneity may affect any statistical analysis, and even more so an unsupervised one such as WGCNA.
+What, if any, modifications should be made to the analysis depends crucially on whether the heterogeneity
+(or its underlying driver) is considered "interesting" for the question the analyst is trying to answer,
+or not. If one is lucky, the main driver of sample differences is the treatment/condition one studies, in
+which case WGCNA can be applied to the data as is. Unfortunately, often the heterogeneity drivers are
+uninteresting and should be adjusted for. Such factors can be technical 
+(batch effects, technical variables such as post-mortem interval etc.) or biological (e.g., sex, tissue, or
+species differences).  
+<p>If one has a categorical source of variation (e.g., sex or tissue differences) and the number of samples in
+each category is large enough (at least 30, say) to construct a network in each category separately, it may
+be worthwhile to carry out a consensus module analysis (Tutorial II, see <a href="Tutorials/">WGCNA
+Tutorials</a>). Because this analysis constructs a network in each category separately, the
+between-category variation does not affect the analysis.  
+
+<p>If it is desired to construct a single network for all samples, 
+the unwanted or uninteresting sources of large variation in the data should be adjusted for. For categorical
+(ordinal) factors we recommend using the function <code>ComBat</code> (from the package <code>sva</code>).
+Users who have never used ComBat before should read the help file for <code>ComBat</code> and work 
+through the <code>sva</code> vignette
+(type <code>vignette("sva")</code> at the R prompt) to make sure they use <code>ComBat</code> correctly. 
+
+<p>For continuous sources of variation (e.g., postmortem interval), one can use simple linear regression to
+adjust the data. There may be more advanced methods out there that also allow the use of covariates and
+protect from over-correction.
+
+<p>Whichever method is used, we caution the user that removal of unwanted sources of variation is never perfect
+and it can, in some cases, lead to removal of true interesting signal, and in rare cases it may introduce
+spurious association signal. Thus, only sources of relatively large variation should be removed. 
+
+<br><br>
+<li><b>I can't get a good scale-free topology index no matter how high I set the soft-thresholding power.
+</b><p>
+
+<p>First, the user should ensure that variables (probesets, genes etc.) have <b>not</b> been filtered by
+differential expression with respect to a sample trait. See item 2 above for details about beneficial and
+detrimental filtering genes or probesets.
+
+<p>If the scale-free topology fit index
+fails to reach values above 0.8 for reasonable powers (less than 15 for unsigned or signed hybrid networks,
+and less than 30 for signed networks) and the mean connectivity remains relatively high (in the hundreds or
+above), chances are that the data exhibit a strong driver that makes a subset of the samples globally
+different from the rest. The difference causes high correlation among large groups of genes which
+invalidates the assumption of the scale-free topology approximation.
+
+<p>Lack of scale-free topology fit by itself does not invalidate the data, but should be looked into
+carefully. It always helps to plot the sample clustering tree and any technical or biological sample
+information below it as in Figure 2 of <a
+href="Tutorials/FemaleLiver-01-dataInput.pdf">Tutorial I, section 1</a>; strong clusters in the clustering
+tree indicate globally different groups of samples.
+It could be the result a technical effect such as a batch effect, 
+biological heterogeneity (e.g., a data set consisting of samples from 2 different tissues), or strong
+changes between conditions (say in a time series). One should investigate carefully whether there is sample
+heterogeneity, what drives the heterogeneity, and whether the data should be adjusted (see previous point).
+
+<p>If the lack of scale-free topology fit turns out to be caused by an interesting biological variable that
+one does not want to remove (i.e., adjust the data for), the appropriate soft-thresholding power can be
+chosen based on the number of samples as in the table below. This table has been updated in December 2017 to
+make the resulting networks conservative.
+
+<center>
+<table align="center" border=1 cellpadding=2.6em>
+<tr align="center">
+<td align="center"><b>Number of samples</b></td>
+<td align="center"><b>Unsigned and signed hybrid networks</b></td>
+<td align="center"><b>Signed networks</b></td> 
+</tr> <tr>
+<td align="center"> Less than 20</td> <td align="center"> 9 </td> <td align="center"> 18 </td>
+</tr> <tr>
+<td align="center"> 20-30 </td> <td align="center"> 8 </td> <td align="center"> 16 </td>
+</tr> <tr>
+<td align="center"> 30-40 </td> <td align="center"> 7 </td> <td align="center"> 14 </td>
+</tr> <tr>
+<td align="center"> more than 40 </td> <td align="center"> 6 </td> <td align="center"> 12 </td>
+</tr> </table>
+</center>
+
+<br><br>
+<li><b>The functions take many arguments! Are default settings always appropriate?</b><p>
+
+Many of the WGCNA functions take multiple arguments that control various subtleties in network construction
+and module identification. In general we attempt to provide defaults that work reasonably well in most
+common  situations. However, in some cases we, over time, find that a different setting is more
+appropriate. In most cases we keep the old default for reproducibility. 
+
+<br><br><li><b>Functions TOMsimilarity and TOMsimilarityFromExpr give slightly different results!</b><p>
+
+The function <code>TOMsimilarityFromExpr</code> uses a slightly different default setting for 
+TOM calculation in <i>unsigned</i>
+networks. This should produce TOM that's slightly easier to interpret but is slightly different from what
+one gets by calculating a standard unsigned adjacency and then TOM using <code>TOMsimilarity</code>. 
+To get the same result, use the argument <code> TOMType="unsigned"</code> when calling
+<code>TOMsimilarityFromExpr</code>.
+
+</ol>
+
+<h3>
+Version compatibility issues</h3>       
+<ol>
+<li> <b>I updated R and/or WGCNA and am geting different results!</b><p>
+<p>As we continue to develop and improve the methods contained in this package, from time to time the
+default calculations methods and arguments may change. We do our best to preserve options that will allow
+the user to replicate old results using a new package version, and we document the changes in the <a
+href="Changelog">changelog</a>. If you cannot figure out the necessary
+arguments to reproduce an old result, please send Peter Langfelder an email. 
+
+<p>Changes in R cause different results very infrequently, but one of those changes happened recently between R-3.5.3 and
+R-3.6.0. R changed the default random number generator method and that leads to potentially different results whenever
+random numbers are used. These include preclustering for <code>blockwiseModules</code> (function
+<code>projectiveKMeans</code>) and their consensus
+counterparts, module preservation calculations and a whole host of other functions. If possible, I suggest re-running the
+analysis again with the new default for the random number generator; the reason R changed random number generation is that
+the old default method gave non-uniform distribution when larger sets of random numbers were generated. If re-running is
+not feasible, results obtained in R-3.5.3 or lower can be reproduced in R-3.6.0 or higher by executing
+<div class=pcode>
+   RNGkind("Mersenne-Twister", "Inversion", "Rounding")
+</div>
+<p>at the start of the R session.
+ 
+</ol>
+
+<br><br>
+
+
+<h3>
+Errors while running tutorial examples</h3>
+<ol>
+<li> <b>I get an error saying <i>could not find function "..."</i></b><p>
+
+This error nearly always occurs because R was not able to load the WGCNA package. In R, type
+<div class="pcode">
+library(WGCNA)
+</div>
+<br>
+and read the output carefully; if you see any errors (usually about a missing package needed for WGCNA 
+or the inability to load a such a package), these need to be fixed before you can execute any WGCNA code.
+
+<li> <b>I get an error running your tutorials exactly as described. </b><p>
+
+If you get an error in function <code>pickSoftThreshold</code>, please see item 1 in Runtime
+errors. Otherwise, please send Peter Langfelder an email. It is certainly possible that 
+the tutorials still contain
+undiscovered bugs, or that our changes to the package or changes to R have broken the offending tutorial.
+<br><br>
+
+<li> <b>The tutorials run fine on example data, but produce an error on my own data. </b><p>
+
+The most likely culprit is the size of your data set. In particular, Sections 2.a of Tutorials I and II
+assume that you have less than 5000 probes in your data set. If you have more than that, please look at
+the corresponding section 2.c (Dealing with large data sets). Modify the argument maxBlockSize to suit
+the capabilities of your computer; the details are described in Section 2.c of the corresponding tutorial.
+<br><br>
+
+</ol>
+
+<h3>Runtime errors</h3> 
+
+<ol>
+
+<li> <b>I get an error when running parallel calculations - function pickSoftThreshold </b><p>
+
+Multiple user reports indicate that parallel (multi-threaded or cluster) calculations fail when run from 
+third-party R GUI environments such as RStudio. If you use RStudio or other environments not supplied by R
+Core team, please disable parallel execution by <code>disableWGCNAThreads()</code> before running the
+calculations.
+
+<li> <b>I get errors when WGCNA code tries to start multiple threads. </b><p>
+
+Although most modern processsors have multiple cores, some environments, most notably clusters (such the Sun
+Grid Engine clusters), make only one processor core available to each process. Attempting to start multiple
+threads often leads to error messages similar to this example: 
+<code>
+thread 0 could not be started successfully. Error code: 11.
+</code>
+<br><br>
+If this happens, please disable threading (for example, using the function
+<pcode>disableWGCNAThreads()</pcode>) before calling the offending function. 
+If this does not solve the problem, please contact Peter Langfelder
+
+
+<li> <b>I keep getting a malloc error. </b><p> Several Mac users have reported malloc errors such as
+<br><br>
+<code>
+R(9073,0xa013dfa0) malloc: *** mmap(size=95006720) failed (error code=12)<br>
+*** error: can't allocate region<br>
+*** set a breakpoint in malloc_error_break to debug <br>
+</code>
+<br><br>
+From all we know this is a spurious and harmless message, and can be ignored. For all C- and gcc-savvy 
+Mac users out there, if you find a cause and solution, please let us know. <br><br>
+
+<li> <b>The code crashes with a mysterious error message. </b><p>
+Such crashes are often the result of unusual data that cause a condition we have not thought about, or
+subtle abnormalities in the data. Here are a few situations in which we have seen our code crash:
+<ul>
+<li> The data contains too many missing entries. We attempt to make the code resistant to missing data,
+but sometimes we miss something. As a test, try imputing the missing data and run a test run with imputed
+data. 
+<li> The data may contain too few samples or probes. 
+<li> The input data is not numeric. This often a subtle and hard to catch problem. When reading data in
+from text tables (tab-separated .txt or comma-separated .csv files), R may convert a data frame to a list
+and/or convert some columns to a character or a factor. This may happen, for example, because missing
+data in your data file are encoded as <code>NULL</code> or <code>N/A</code>, while R expects <code>NA</code>
+and everything else is treated as a character string. It is best to sort such problems out at the source,
+but it may not always be possible, and the user will need to run a version of <br>
+<pre>
+  charData = apply(as.matrix(data), 2, as.character); 
+  numData = apply(charData, 2, as.numeric);
+</pre> 
+<li> Last but not least, your data may be perfectly fine but lead to no modules, or perhaps just one
+module, and such cases may not be handled correctly by the code (i.e., the code is buggy). Please send
+Peter Langfelder an email if you encounter such a situation.
+</ul>
+ <br><br>
+<li> <b>Another mysterious crash - data.frame vs. matrix. </b><p>
+Some errors may be caused by conversion between matrices and data frames. For most purposes, a
+<code>data.frame</code> and a
+<code>matrix</code> are equivalent and many functions will run with both types of arguments. One big exception
+is the handling of column names. While column names of matrices are fairly arbitrary column names of data frames
+must begin with a letter, underscore, or a dot. This can be a problem if, for example, the expression data are
+stored in a <code>matrix</code> and the probe set idetifiers begin with a number, for example,
+<code>"1552612_at"</code>. When converted to a data frame, R will prepend an "X" to each invalid column name,
+making the example <code>"X1552612_at"</code>. Such changes may cause errors, for example, in the function
+<code>plotNetworkHeatmap</code> and others. 
+ <br><br>
+<li> <b>Code crashes when q-values are calculated</b><p>
+Some of our screening functions calculate q-values associated with a family of statistical tests. It is not
+uncommon that the q-value calculation fails because the p-values have an unusual distribution. We will attempt
+to catch such errors and prevent them from derailing the entire screening calculation. 
+
+<li> <b>(Updated) WGCNA crashes R on my Mac!</b><p>
+We have received scattered reports of crashes on Mac OSX 10.6.x (10.5.x systems do not exhibit this error). The
+symptoms are various hard crashes (freeze, segmentation faults and similar) that happen when trying to
+execute almost anything after loading the WGCNA package version 1.00 and below. 
+The culprit turned out to be wrong and/or
+incorrectly installed Tcl/Tk. For this reason we have removed the Tcl/Tk dependency starting with WGCNA
+version 1.10. Please install the new version. If your problems still persist, please contact Peter
+Langfelder. <br><br>
+
+
+</ol>
+
+<br><br>
+
+
+<h3>Installation problems</h3> 
+
+<ol> 
+
+<li> <b>Most installation problems can be solved by using CRAN!</b><p>
+Before you spend time trying to solve an installation problem with the downloaded package, please consider
+installing the package from CRAN. We understand that upgrading R can seem like a bit of a hassle, but in the end
+it's worth it. <br><br>
+
+<li> <b>Package impute is not available</b><p>
+As of R version 2.14.0, the package <code>impute</code> has been withdrawn from CRAN and is now available
+exclusively from Bioconductor. To install it, type the following lines in an R session:
+<div class="pcode">
+ source("http://bioconductor.org/biocLite.R") <br>
+ biocLite("impute")
+</div>
+<br>
+This should install the package but watch for any errors that may come up.
+
+<br><br>
+
+<li> <b>R complains about wrong package type.</b> <br><br>
+A common cause of this error is that when the user saves the file, the operating system will uncompress
+or unzip it. 
+Typically, this means the .zip or .tar.gz bundle will be decompressed and extracted, which renders the
+file unusable for R. For example, Mac OS X seems to automatically decompress the gzipped file. 
+The solution is to save the file to disk as is, without letting any program such as
+WinZip touch it. R will decompress and unpack the package itself. On a Mac, you may have to open a
+terminal, change to the directory where you saved the file, and type <br><br>
+<div class="pcode">
+  gzip WGCNA_*.tar
+</div>
+<br><br>
+
+<li> <b>The package won't install on my Mac.</b> <br><br>
+
+The best solution is to update your R to the newest version, then simply run R and use the command
+<code>install.packages("WGCNA")</code>. If you for some reason cannot or do not want to update your R, 
+please look at the <a href="InstallationInstructions.html">installation instructions</a> and make 
+sure you have the required XCode tools installed. <br><br>
+
+<li> <b>I have Xcode tools installed and the package still won't install.</b> <br><br>
+
+Some users have reported that a package named <code>gfortran.pkg</code> is also necessary.
+This may be a new feature of R as of version 2.9.0.  <br><br>
+
+<li> <b><a name="qvalue">I cannot install package qvalue.</a></b> <br><br>
+
+<b>Update:</b> Starting with version 1.10, WGCNA does not require qvalue. Please install the newest version
+of WGCNA; this should cure all Tcl/Tk and qvalue installation problems.  <br><br>
+
+<li> <b>I would like to use a 64-bit version of WGCNA for Windows.</b> <br><br>
+Installing the package using CRAN will automatically provide the 64-bit version if
+appropriate. 
+
+</ol>
+
+<br><br>
+
+
+
+
+<h3>General questions</h3>
+
+<ol>
+
+<li><b>How can I make network construction execute faster?</b><p>
+
+When constructing a network from a data set of a typical genomic size (i.e., between 10 000 and 30 000
+genes or other variables), the most time consuming step is the calculation of Topological Overlap Matrix
+which involves multiplying matrices with tens of thousands of rows and columns. With a standard R
+distribution, this may take multiple hours even on a modern workstation since matrix multiplication in
+standard R does not take advantage of multi-threading (parallel execution). It is possible to speed up
+this process by a factor of 10-100 by installing a speed-optimized Basic Linear Algebra Subprograms (BLAS)
+library and compiling R against it. The process of compiling R against an enhanced BLAS library is
+described in the <a href="http://cran.r-project.org/doc/manuals/r-patched/R-admin.html#BLAS" target=_blank>R 
+installation and adminitration manual</a>. 
+
+Compiling R on Linux and Unix flavors is usually relatively simple and straightforward. On Mac OSX and
+(more so) on Windows it requires installing additional tools and packages. 
+Although it is helpful to have administrator privileges to
+compile and install R, it is usually not necessary. See the <a
+href="http://cran.r-project.org/doc/manuals/r-patched/R-admin.html" target=_blank>R 
+installation and adminitration manual</a> for full details.
+
+<br><br><li><b>Can WGCNA use multiple processors or cores (parallel execution)?</b><p>
+
+Some of the WGCNA code is written to take advantage of parallel execution to speed up the calculations.
+There are two main parallel computation mechanisms used by WGCNA: the compiled functions cor and bicor use
+POSIX threading for a part but not all of the calculation. This parallel code is only available on
+platforms that have POSIX threads available (various Linux and Unix flavors and Mac OS). It is not available
+on Windows. 
+
+Some functions (such as pickSoftThreshold) are able to use POSIX threads where they are available and use
+SNOW clusters where multi-threading is not available.
+
+The users should be aware that POSIX and cluster parallel execution are very different and are not
+interchangeable; in fact, many cluster environments only allocate a single core to each process ("job") and
+attempting to start additional threads leads to errors (see Runtime errors below).
+
+<p>Even on systems where threading is available <b>it is disabled by default</b>. This is a conservative setting
+that may slow down the calculations but will also prevent WGCNA from grabbing all available processor
+cores.
+There are two ways to enable multi-threading:
+<ul>
+<li>Within R, call the function 
+<p><div class="pcode">allowWGCNAThreads()</div> 
+<p> to allow threading from within WGCNA. Multi-threading can be turned off
+again using the function <code>disableWGCNAThreads()</code>. See the help file for
+<code>allowWGCNAThreads()</code> for more details. 
+<li>Set the environment variable 
+<p><div class="pcode">ALLOW_WGCNA_THREADS=&lt;number_of_processors&gt;,</div> 
+<p>for example, if
+you have 2 cores (or want to use 2 cores),  
+<p><div class="pcode">ALLOW_WGCNA_THREADS=2</div>. 
+<p>If you don't know what an
+environment variable is, please use the above <code>allowWGCNAThreads()</code> within R.
+</ul>
+
+<p>Please note that this setting does not affect the multi-threading status of the underlying BLAS library.
+ <br><br>
+
+
+<li><b>Is there a GUI interface to WGCNA?</b><p>
+
+In short, no. There used to be one but it is hopelessly broken and out of date.
+
+</ol>
+
+
+
+<p><br><br>
+<hr>
+<p>
+
+</body>
+</html>
+

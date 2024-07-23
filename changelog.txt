@@ -1,0 +1,145 @@
+
+02/13/2016
+
+	. The consensus tutorials have been updated to refect results of
+	  the WGCNA package version 1.49 current as of February 2016.
+
+06/15/2014
+
+	. Added plain text R scripts isolated from the tutorials for easier
+	  copying and pasting.
+
+11/25/2014
+
+	. Adapted tutorials for the upcoming WGCNA version 1.42. The main
+	  change is replacing calls to flashClust with hclust, since WGCNA
+	  will from now on use the hclust function implemented in the package
+	  fastcluster.
+
+06/04/2014
+
+	. Fixed wrong statements in Tutorial I, section 5, concerning which
+	  modules are part of the same meta-module (thanks to Susan Service
+	  for pointing this out
+
+02/14/2014
+
+	. Added setLabels to the save call at the end of Tutorial II, Section 1.
+	  (Thanks to Kazuhiro Fujita for pointing this out.)
+
+	. Added warnings about incompatibility of RStudio with parallel
+	  computation in the relevant tutorial sections.
+
+
+07/19/2013
+
+	. Corrected arguments to blockwiseModules to reproduce results in 
+	  the tutorial.
+
+02/21/2013:
+
+	. A discrepancy between merging heights in Sections 2.a and 2.b of
+	  Tutorial I has been corrected (thanks to Junfeng Jiang for pointing it
+	  out)
+
+	. Argument minKMEtoStay has been removed from calls to
+	  blockwiseConsensusModules since the function does not accept the
+	  argument anymore (also thanks to Junfeng Jiang for pointing it out).
+
+12/24/2012:
+
+	. A bug in Tutorial II, section 2 fixed (previously undefined variable
+	  'nSets' is now defined).
+
+11/20/2012:
+
+	. A bug in Tutorial I, section 6a fixed (`order' replaced by `rank').
+
+11/13/2012:
+
+	. Adapted tutorials to the new multi-threading/parallel computation
+	  functions, in particular changed some calls to allowWGCNAThreads to
+	  enableWGCNAThreads.
+
+12/07/2011:
+
+	. Fixed function name plotMat from plot.Mat
+	. Fixed component name cor.Weighted from Cor.Weighted
+
+06/06/2011:
+
+	. Added link to Jeremy Miller's more advanced tutorial
+	. Added a subsection on export of network analysis results 
+	  to Tutorial II, Section 4.
+
+01/07/2010: 
+
+	. Tutorial I, Section 4b rewritten to illustrate GO enrichment
+	  analysis directly within the WGCNA package using the function
+	  GOenrichmentAnalysis
+
+11/17/2009:
+
+	. small changes in Tutorial I, section 5, plotEigengeneNetworks to
+	  make the plot look better.
+	. bugfix in Tutorial II, section 5: definition of missing variables
+	  added in the beginning
+
+10/19/2009:
+
+	. adapted Tutorial III (Analysis of simulated data) to WGCNA version 0.81 
+	  that contains the necessary functions from the now defunct package sma, 
+	  and removed loading of the sma package.
+
+09/09/2009:
+
+	. typo fixed in Tutorial II (Consensus analysis), section 1c (thanks to Michael Zhou 
+	  for pointing it out)
+
+09/04/2009:
+
+	. from now on the file GeneAnnotation.csv is not gzip-ed as it seems to lead to occasional
+	  problems. The tutorials have been adapted to read the un-gzip-ed csv file.
+
+09/03/2009:
+
+	. adapted code to new version of GOSim by changing 'analyzeCluster' to 'GOenrichment'
+
+06/02/2009:
+
+	. added setting the working directory at the beginning of the analysis
+
+05/08/2009:
+
+	. added cautionary notes about arguments to blockwise[Consensus]Modules
+
+03/18/2009:
+
+	. reworked blockwise module detection to reflect the improvements in
+	  pre-clustering algorithms and illustrate the use of matchLabels in
+	  comparing different clusterings
+	. added comparison of single-block and block-wise methods for female
+	  mouse tutorial
+	. fixed typos, errors, and inconsistencies in consensus tutorials
+
+03/03/2009:
+
+	. fixed a bug in the consensus tutorial part 2.b: unmergedColors are now properly defined 
+	  (thanks to Dave Weston for pointing it out)
+
+02/20/2009:
+
+	. Added a short section of code to both mouse tutorials to illustrate removal of bad genes and
+	  samples identified by the functions goodSamplesGenes, goodSamplesGenesMS
+
+02/05/2009:
+
+	. Adapted tutorials to WGCNA version 0.71 and dynamicTreeCut 1.20. Results are unchanged. 
+	  Note that current tutorials are not compatible with earlier versions of WGCNA and
+	  dynamicTreeCut.
+
+12/22/2008:
+
+	. Added simulated data tutorial
+	. Mouse tutorials: changed module merging cut to 0.25, resulting in
+	  slightly fewer and larger modules

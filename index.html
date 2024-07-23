@@ -1,0 +1,326 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="vi under Linux">
+   <title>Tutorials for WGCNA R package</title> 
+   <link rel="stylesheet" type="text/css" href="../mystyle.css">
+</head>
+<body>
+
+<center>
+<h1>
+
+Tutorials for the WGCNA package </h1>
+
+<h2> 
+	Peter Langfelder and Steve Horvath
+</h2>
+
+Dept. of Human Genetics, UC Los Ageles (PL, SH), 
+Dept. of Biostatistics, UC Los Ageles (SH)
+<br>
+<br>
+Peter (dot) Langfelder (at) gmail (dot) com,
+SHorvath (at) mednet (dot) ucla (dot) edu 
+<br><br>
+
+</center>
+
+<p>
+This page provides a set of tutorials for the WGCNA package. We illustrate various aspects of data input,
+network construction, module detection, relating modules and genes to external information etc.
+Before going through the tutorials, please make sure you have installed (the newest version of) the 
+WGCNA package and all packages it
+depends on. Please refer to the <a href=../index.html>main WGCNA page</a> and the <a
+href="../InstallationInstructions.html">installation instructions</a> for details. 
+
+<p> We provide three introductory tutorials (I - III), each split into smaller sections for easier reading,
+and we link to more advanced tutorials that describe research analyses in which we used WGCNA. 
+<ul>
+<li>
+The first
+tutorial guides the reader through an analysis of a single empirical gene expression data set. Results
+obtained in this tutorial are described in the example analysis section of the main paper. We highly
+recommend that the reader work through this tutorial before moving on to the second tutorial. 
+<li> The second
+tutorial introduces consensus module analysis that closely parallels the single data set analysis
+presented in Tutorial I, but contains the extra ingredient of analyzing the consensus of two related but
+different sets. 
+<li> Tutorial III illustrates data simulation, provides a different look at preprocessing and
+network construction, and adds a comparison of several different module detection techniques. Finally, it
+illustrates a network-based gene screening technique and compares it to a standard, correlation-based
+gene screening.
+
+<li> Jeremy Miller's tutorial that illustrates the meta analysis of multiple data sets, including the use of
+the funtions <code>collapseRows</code> and <code>userListEnrichment</code> as well as interfacing with the
+VisANT software. 
+<a href="http://www.genetics.ucla.edu/labs/horvath/CoexpressionNetwork/JMiller">Click here</a> to visit his
+page.
+
+</ul>
+
+<p>The tutorials on this page were last updated on February 13, 2016.
+This <a href=changelog.txt>changelog</a>
+provides a summary of the updates. 
+<b>Please note that the presented tutorials are compatible with WGCNA
+version 1.13 (and higher) and dynamicTreeCut 1.20 (and higher), the versions current as of August 19 2011.</b> 
+The tutorials (at least certain sections) will not
+run with older versions of the two packages; please update if necessary. To get maximum performance, please
+use the newest version of the WGCNA package.
+
+<br>
+<hr>
+<h2>WGCNA background and glossary</h2> 
+
+In addition to the tutorials, we provide a short text containing some background information, an overview
+figure, and a short glossary of network analysis terms and concepts. We highly recommend this short text
+as an introduction and reference.
+<ul>
+<li><a href="Simulated-00-Background.pdf">WGCNA background and glossary</a> of important terms
+</ul>
+
+<hr>
+<h2>I. Network analysis of liver expression data from female mice: finding modules
+related to body weight
+</h2>
+
+<h3>Data description and download</h3>
+
+<p>This tutorial guides the reader through the analysis of an empirical data set. The data are gene
+expression measurements from livers of female mouse of a specific F2 intercross. For a detailed
+description of the data and the biological implications we refer the reader to Ghazalpour et al (2006),
+<i>Integrating Genetics and Network Analysis to
+Characterize Genes Related to Mouse Weight</i> (<a
+href="http://www.plosgenetics.org/article/info:doi/10.1371/journal.pgen.0020130">link to paper</a>;
+<a href="http://www.genetics.ucla.edu/labs/horvath/CoexpressionNetwork/MouseWeight/">link to additional
+information</a>). We note that the data set contains 3600 measured expression profiles. These were
+filtered from the original over 20,000 profiles by keeping only the most variant and most connected
+probes. In addition to the expression data, several physiological quantitative traits were measured for
+the mice.
+
+Please download the
+following
+<ul>
+<li><a href="FemaleLiver-Data.zip">zipped data sets,</a>
+</ul>
+and unzip them in a folder of your choice, preferably a new folder created specifically for this
+tutorial. Note the name of the folder;
+when you start an R session, the first command should be to change the R working directory into this
+folder.
+
+<h3>R Tutorial</h3>
+
+<p>The flowchart of the tutorial is shown below.<br>
+<center>
+<img src="overview-femaleLiver.png">
+</center><br>
+Individual sections can be viewed in PDF format by clicking on the links below. Plain text R code from each
+section is also available by clicking on the corresponding R script link.
+
+For first-time users we recommend starting at the top of the list and working down. Each section of the
+tutorial saves results on disk and the results needed as input for the subsequent sections can be loaded
+from disk, so repeated execution of any of the sections does not require re-working previous sections again.
+<ol>
+  <li> Data input and cleaning: <a href="FemaleLiver-01-dataInput.pdf">PDF document</a>,
+        <a href="FemaleLiver-01-dataInput.R">R script</a>
+  <li> Network construction and module detection
+  <ol type="a">
+    <li>Automatic, one-step network construction and module detection:
+    <a href="FemaleLiver-02-networkConstr-auto.pdf">PDF document</a>, 
+           <a href="FemaleLiver-02-networkConstr-auto.R">R script</a>
+
+    <li>Step-by-step network construction and 
+           module detection: <a href="FemaleLiver-02-networkConstr-man.pdf">PDF document</a>, 
+           <a href="FemaleLiver-02-networkConstr-man.R">R script</a>
+
+    <li>Dealing with large datasets: block-wise network
+    construction and module detection: <a href="FemaleLiver-02-networkConstr-blockwise.pdf">PDF document</a>,
+    <a href="FemaleLiver-02-networkConstr-blockwise.R"> R script</a>
+  </ol>
+  <li>Relating modules to external clinical traits and
+  identifying important genes: <a href="FemaleLiver-03-relateModsToExt.pdf">PDF document</a>, 
+             <a href="FemaleLiver-03-relateModsToExt.R"> R script</a>
+
+  <li>Interfacing network analysis with other data such as functional
+  annotation and gene ontology <a href="FemaleLiver-04-Interfacing.pdf">PDF document</a>, 
+   <a href="FemaleLiver-04-Interfacing.R">R script</a>
+
+  <li>Network visualization using WGCNA functions: <a href="FemaleLiver-05-Visualization.pdf">PDF
+document</a>, <a href="FemaleLiver-05-Visualization.R">R script</a>
+
+  <li> Export of networks to external software: <a href="FemaleLiver-06-ExportNetwork.pdf">PDF document</a>, 
+       <a href="FemaleLiver-06-ExportNetwork.R">R script</a>
+</ol>
+
+<br>
+<hr>
+<h2>II. Consensus analysis of female and male liver expression data
+</h2>
+
+<h3>Data description and download</h3>
+
+<p>In this tutorial we illustrate a consensus network analysis on the example of two expression data sets, 
+the female liver analyzed in Tutorial I, and a corresponding expression data set from livers of male mice.
+The two sets are biologically very similar, but significant differences exists as well. The consensus
+analysis parallels the female data analysis very closely and some sections are copied almost verbatim. We
+concentrate on the parts of the analysis that illustrate the idea behind a consensus analysis, and we
+leave out parts such as functional enrichment analysis for which the analysis and code would be exactly
+or nearly the same.
+
+<p>To run the tutorials, the following two zip bundles of data sets are necessary:
+<ul>
+<li><a href="FemaleLiver-Data.zip">Female data</a> (same as in Part I - no need to download again)
+<li><a href="MaleLiver-Data.zip">Male data</a>
+</ul>
+Please download and unzip them in a folder of your choice, 
+for example in the same folder as the female data (file names in the female and consensus analyses do not
+conflict).  Note the name of the folder;
+when you start an R session, the first command should be to change the R working directory into this
+folder.
+
+<h3>R Tutorial</h3>
+
+<p>The flowchart of the tutorial is shown below.<br>
+<center>
+<img src="overview-Consensus.png">
+</center><br>
+Individual sections can be viewed in PDF format by clicking on the links below. We highly recommend that
+the user first works through the female expression data analysis, because it explains many of the same basic
+analysis techniques on a simpler example, without the additional complications of analyzing two sets at
+the same time. We recommend starting at the top working through the sections in the order they are
+presented here. Each section saves its results on disk and the results needed as input for the subsequent 
+parts can be loaded
+from disk, so repeated execution of any of the sections does not require re-working previous sections again.
+<ol>
+  <li>Data input and cleaning, including re-formatting the data
+for consensus analysis: <a href="Consensus-DataInput.pdf">PDF document</a>, 
+<a href="Consensus-DataInput.R">R script</a>
+
+  <li> Network construction and consensus module detection
+  <ol type="a">
+    <li>Automatic, one-step network construction and 
+           consensus module detection: <a href="Consensus-NetworkConstruction-auto.pdf">PDF document</a>,
+           <a href="Consensus-NetworkConstruction-auto.R">R script</a>
+
+    <li>Step-by-step network construction and 
+           module detection, including scaling of Topological Overlap Matrices:
+           <a href="Consensus-NetworkConstruction-man.pdf">PDF document</a>, 
+           <a href="Consensus-NetworkConstruction-man.R">R script</a>
+
+    <li>Dealing with large datasets: block-wise
+network construction and consensus module detection</a>, including comparing the block-wise approach to
+the standard single-block method: <a href="Consensus-NetworkConstruction-blockwise.pdf">PDF document</a>,
+           <a href="Consensus-NetworkConstruction-blockwise.R">R script</a>
+  </ol>
+  <li> Relating the consensus modules to female set-specific
+modules (this section requires the results of Section 2.a of the female turorial): 
+    <a href="Consensus-RelateToFemMods.pdf">PDF document</a>,
+           <a href="Consensus-RelateToFemMods.R">R script</a>
+
+
+  <li> Relating consensus module to external microarray sample
+traits and exporting the results of network analysis: <a href="Consensus-RelateModsToTraits.pdf">PDF
+document</a>,
+           <a href="Consensus-RelateModsToTraits.R">R script</a>
+
+
+  <li> Studying and comparing the relationships among modules
+and traits between the two data sets</a>, including the visualization of consensus eigengene networks and
+the results of the differential analysis: <a href="Consensus-EigengeneNetworks.pdf">PDF
+document</a>,
+           <a href="Consensus-EigengeneNetworks.R">R script</a>
+
+
+</ol>
+
+<br>
+<hr>
+<h2>III. Analysis of simulated data
+</h2>
+
+In this R software tutorial we review key concepts of weighted gene co-expression network analysis
+(WGCNA). The tutorial also serves as a small introduction to clustering procedures in R. 
+We use simulated gene expression data to evaluate different module detection methods and gene screening
+approaches.
+
+<h3>Data description and download</h3>
+
+Although the tutorial uses simulated data, in Section 2 it also demonstrates loading of 
+summary, expression and trait data. Data files used for that section are generated in Section 7; however,
+we also provide them here for download:
+<ul>
+<li><a href="SimulatedData.zip">Simulated data</a> 
+</ul>
+Please download and unzip them in a folder of your choice. We recommend a folder separate from the mouse
+analyses above, but same folder will work as well.
+Note the name of the folder;
+when you start an R session, the first command should be to change the R working directory into this
+folder.
+
+<h3>R Tutorial</h3>
+
+Individual sections of the tutorial can be viewed in PDF format by clicking on the links below. We
+recommend starting at the top working through the sections in the order they are
+presented here. Each section saves its results on disk and the results needed as input for the subsequent
+parts can be loaded
+from disk, so repeated execution of any of the sections does not require re-working previous sections
+again. 
+<ol>
+  <li> Simulation of expression and trait data: <a href="Simulated-01-dataSimulation.pdf">PDF document</a>, 
+       <a href="Simulated-01-dataSimulation.R">R script</a>
+
+  <li> Loading of expression data, an alternative to data simulation, provided to
+  illustrate data loading of real data:
+<a href="Simulated-02-dataLoading.pdf">PDF document</a>, <a href="Simulated-02-dataLoading.R">R script</a>
+
+  <li> Basic data preprocessing illustrates
+  rudimentary techniques for handling missing data and removing outliers:
+    <a href="Simulated-03-Preprocessing.pdf">PDF document</a>, 
+       <a href="Simulated-03-Preprocessing.R">R script</a>
+
+  <li> Standard gene screening illustrates gene selection
+  based on Pearson correlation and shows that the results are not satisfactory:
+   <a href="Simulated-04-StandardScreening.pdf">PDF document</a>, 
+       <a href="Simulated-04-StandardScreening.R">R script</a>
+
+  <li> Construction of a weighted gene co-expression
+  network and network modules
+  illustrated step-by-step; includes a discussion of alternate clustering techniques: 
+    <a href="Simulated-05-NetworkConstruction.pdf">PDF document</a>,
+       <a href="Simulated-05-NetworkConstruction.R">R script</a>
+
+  <li>Relating modules and module eigengenes to external
+  data illustrates methods for relating modules to external microarray sample traits: 
+   <a href="Simulated-06-RelatingToExt.pdf">PDF document</a>,
+       <a href="Simulated-06-RelatingToExt.R">R script</a>
+
+  <li> Module membership, intramodular connectivity, and screening
+  for intramodular hub genes</a> illustrates using the intramodular connectivity to define measures of
+  module membership and to screen for genes based on network information:
+   <a href="Simulated-07-Membership.pdf">PDF document</a>,
+       <a href="Simulated-07-Membership.R">R script</a>
+
+  <li> Visualization of gene networks: <a href="Simulated-08-Visualization.pdf">PDF document</a>,
+       <a href="Simulated-08-Visualization.R">R script</a>
+</ol> 
+
+<br>
+<hr>
+<h2>IV. Meta-analysis of several data sets
+</h2>
+  
+Jeremy Miller's tutorial illustrates the meta analysis of multiple data sets, including the use of
+the funtions <code>collapseRows</code> and <code>userListEnrichment</code> as well as interfacing with the
+VisANT software. 
+<a href="http://www.genetics.ucla.edu/labs/horvath/CoexpressionNetwork/JMiller">Click here</a> to visit his
+page.
+
+
+<p><br><br>
+<hr>
+<p>
+
+</body>
+</html>
+
